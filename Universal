@@ -1,0 +1,285 @@
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Consistt/Ui/main/UnLeaked"))()
+
+
+local Wm = library:Watermark("Voided.gg | v" .. "1.0"..  " | " .. library:GetUsername() .. " | " .. identifyexecutor())
+local FpsWm = Wm:AddWatermark("fps: " .. library.fps)
+coroutine.wrap(function()
+    while wait(.75) do
+        FpsWm:Text("fps: " .. library.fps)
+    end
+end)()
+
+local Notif = library:InitNotifications()
+
+for i = 20,0,-1 do 
+    task.wait(0.05)
+    local LoadingXSX = Notif:Notify("Loading: Voided.gg, please be patient.", 3, "information") 
+end 
+
+library.title = "Voided.gg | Universal"
+
+library:Introduction()
+wait(1)
+local Init = library:Init()
+
+local Tab1 = Init:NewTab("Main")
+local Tab2 = Init:NewTab("Players")
+local Tab4 = Init:NewTab("Misc")
+local Tab5 = Init:NewTab("Settings")
+
+local Section1 = Tab1:NewSection("Main")
+local Section2 = Tab2:NewSection("Players")
+local Section4 = Tab4:NewSection("Misc")
+local Section5 = Tab5:NewSection("Settings")
+
+wait(1)
+
+
+local Button1 = Tab1:NewButton("Anti Fling", function()
+    wait(1)
+    local FinishedLoading = Notif:Notify("AntiFling = success ", 4, "success")
+    if not game.IsLoaded(game) then
+       repeat task.wait() until game.IsLoaded(game)
+    end
+    
+    local RunService, FindFirstChildOfClass = game.GetService(game, "RunService"), game.FindFirstChildOfClass;
+    local Client = game.GetService(game, "Players").LocalPlayer
+    
+    function AntiFling()
+       local HeartbeatLoop = nil
+       
+       for _, v in next, game:GetDescendants() do
+           if  v and v:IsA"Part"  and v.Parent ~= Client.Character and v.Anchored == false and v.Name == "HumanoidRootPart" then 
+               HeartbeatLoop = RunService.Heartbeat:Connect(function()
+                   v.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
+                   v.Velocity = Vector3.new(0,0,0)
+                   v.RotVelocity = Vector3.new(0,0,0)
+                   v.CanCollide = false
+    task.wait(1)
+               end)
+           end
+       end
+       end
+       
+       Client.Character.Humanoid.Died:Connect(function()
+           HeartbeatLoop:Disconnect()
+           HeartbeatLoop = nil
+       end)
+    AntiFling()
+    workspace.DescendantAdded:Connect(function(part) if part:isA("Part") and part.Name == "HumanoidRootPart"  and part.Parent ~= game.Players.LocalPlayer.Character then do wait(2) AntiFling()
+    end
+    
+    
+    end
+    end)
+end)
+
+
+
+local Button2 = Tab4:NewButton("Simple Spy", function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
+end)
+
+local Button3 = Tab4:NewButton("Dark dex", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/dyyll/Dex-V5-leak/main/Dex%20V5.lua"))()
+    end)
+    local Button3 = Tab4:NewButton("Touch Fling (Not Mine)", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/0Ben1/fe./main/Fling%20GUI"))()
+end)
+
+local Keybind1 = Tab5:NewKeybind("Close Keybind", Enum.KeyCode.RightAlt, function(key)
+    Init:UpdateKeybind(Enum.KeyCode[key])
+end)
+
+local lp = game:FindService("Players").LocalPlayer
+ 
+local function gplr(String)
+	local Found = {}
+	local strl = String:lower()
+	if strl == "all" then
+		for i,v in pairs(game:FindService("Players"):GetPlayers()) do
+			table.insert(Found,v)
+		end
+	elseif strl == "others" then
+		for i,v in pairs(game:FindService("Players"):GetPlayers()) do
+			if v.Name ~= lp.Name then
+				table.insert(Found,v)
+			end
+		end 
+	elseif strl == "me" then
+		for i,v in pairs(game:FindService("Players"):GetPlayers()) do
+			if v.Name == lp.Name then
+				table.insert(Found,v)
+			end
+		end 
+	else
+		for i,v in pairs(game:FindService("Players"):GetPlayers()) do
+			if v.Name:lower():sub(1, #String) == String:lower() then
+				table.insert(Found,v)
+			end
+		end 
+	end
+	return Found 
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local function getPlayer(playerName, speaker)
+    local player = Players:FindFirstChild(playerName)
+    if player then
+        return player
+    else
+        return nil
+    end
+end
+
+local function getTorso(character)
+    return character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso")
+end
+
+local function getRoot(character)
+    local torso = getTorso(character)
+    if torso then
+        return torso
+    else
+        return character:FindFirstChild("UpperTorso") or character:FindFirstChild("LowerTorso")
+    end
+end
+
+local function r15(speaker)
+    return speaker.Character and speaker.Character.Humanoid.RigType == Enum.HumanoidRigType.R15
+end
+
+local bangDied, bang, bangAnim, bangLoop, isPlayingAnimation  -- Define these variables here
+
+local function playBangAnimation(speaker, args)
+    if not speaker or not speaker.Character then
+        print("Speaker or speaker's character is nil.")
+        return
+    end
+
+    if isPlayingAnimation then
+        print("Animation is already playing.")
+        return
+    end
+
+    local humanoid = speaker.Character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then
+        print("Speaker's character does not have a humanoid.")
+        return
+    end
+
+    bangAnim = Instance.new("Animation")
+    bangAnim.AnimationId = not r15(speaker) and "rbxassetid://148840371" or "rbxassetid://5918726674"
+    bang = humanoid:LoadAnimation(bangAnim)
+    bang:Play(0.1, 1, 1)
+    bang:AdjustSpeed(args[2] or 3)
+    bangDied = humanoid.Died:Connect(function()
+        bang:Stop()
+        bangAnim:Destroy()
+        bangDied:Disconnect()
+        if bangLoop then
+            bangLoop:Disconnect()
+        end
+        isPlayingAnimation = false
+    end)
+
+    bangLoop = RunService.Stepped:Connect(function()
+        pcall(function()
+            local targetPlayer = getPlayer(args[1], speaker)
+            if targetPlayer then
+                local otherRoot = getRoot(targetPlayer.Character)
+                local casterRoot = getRoot(speaker.Character)
+                local offset = otherRoot.Position - casterRoot.Position
+                local bangOffset = CFrame.new(0, 0, 1.1)
+                casterRoot.CFrame = otherRoot.CFrame * bangOffset
+            end
+        end)
+    end)
+
+    isPlayingAnimation = true
+end
+
+
+local function TeleportToPlayer(playerName)
+    local player = game.Players:FindFirstChild(playerName)
+    if player then
+        game.Players.LocalPlayer.Character:MoveTo(player.Character.HumanoidRootPart.Position)
+        print("Teleporting to " .. playerName)
+    else
+        print("Player " .. playerName .. " not found in the game.")
+    end
+end
+
+local TextBox2
+TextBox2 = Tab2:NewTextbox("Player Name in here", "", "2", "all", "medium", true, false, function(val)
+    TextBox2.value = val
+end)
+
+
+
+local Button3 = Tab2:NewButton("Teleport", function()
+    local playerName = TextBox2.value
+    if playerName ~= "" then
+        TeleportToPlayer(playerName)
+    else
+        print("Please enter a valid player username.")
+    end
+end)
+
+local Button3 = Tab2:NewButton("Bang", function()
+    local player = game.Players.LocalPlayer
+    if player then
+        playBangAnimation(player, {TextBox2.value, 2})
+    else
+        print("Local player not found.")
+    end
+end)
+
+local UnbangButton = Tab2:NewButton("Unbang", function()
+    if isPlayingAnimation then
+        if bangDied then
+            bangDied:Disconnect()
+        end
+        if bang then
+            bang:Stop()
+        end
+        if bangAnim then
+            bangAnim:Destroy()
+        end
+        if bangLoop then
+            bangLoop:Disconnect()
+        end
+        isPlayingAnimation = false
+        print("Unbang button clicked")
+    else
+        print("No animation is currently playing.")
+    end
+end)
+
+
+
+local Button3 = Tab2:NewButton("Fling", function()
+    local Target = gplr(TextBox2.value)
+    if Target[1] then
+        Target = Target[1]
+     
+        local Thrust = Instance.new('BodyThrust', lp.Character.HumanoidRootPart)
+        Thrust.Force = Vector3.new(9999,9999,9999)
+        Thrust.Name = "YeetForce"
+        repeat
+            lp.Character.HumanoidRootPart.CFrame = Target.Character.HumanoidRootPart.CFrame
+            Thrust.Location = Target.Character.HumanoidRootPart.Position
+            game:FindService("RunService").Heartbeat:Wait()
+        until not Target.Character:FindFirstChild("Head")
+    else
+        warn("No player found with that name.")
+    end
+end)
+
+
+
+
+
+local FinishedLoading = Notif:Notify("Finished Loading Voided.gg", 4, "success")
