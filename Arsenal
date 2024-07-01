@@ -1,0 +1,403 @@
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Consistt/Ui/main/UnLeaked"))()
+
+
+local Wm = library:Watermark("Voided.gg | v" .. "1.0"..  " | " .. library:GetUsername() .. "|" .. identifyexecutor())
+local FpsWm = Wm:AddWatermark("fps: " .. library.fps)
+coroutine.wrap(function()
+    while wait(.75) do
+        FpsWm:Text("fps: " .. library.fps)
+    end
+end)()
+
+
+local Notif = library:InitNotifications()
+
+for i = 20,0,-1 do 
+    task.wait(0.05)
+    local LoadingXSX = Notif:Notify("Loading: Voided.gg, please be patient.", 3, "information") 
+end 
+
+library.title = "Voided.gg | Aimbot"
+
+library:Introduction()
+wait(1)
+local Init = library:Init()
+
+local Tab1 = Init:NewTab("AimBot")
+local Tab3 = Init:NewTab("Misc")
+local Tab4 = Init:NewTab("Settings")
+
+local Section1 = Tab1:NewSection("AimBot")
+local Section4 = Tab3:NewSection("Misc")
+local Section5 = Tab4:NewSection("Settings")
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Camera = workspace.CurrentCamera
+
+local LocalPlayer = Players.LocalPlayer
+local currentTarget = nil
+local holdingRightClick = false
+local tween = nil
+local renderStepConnection = nil
+local inputBeganConnection = nil
+local inputEndedConnection = nil
+
+local function hasLineOfSight(player)
+    if not player or not player.Character then return false end
+    local head = player.Character:FindFirstChild("Head")
+    if not head then return false end
+
+    local origin = Camera.CFrame.Position
+    local direction = (head.Position - origin).Unit * (head.Position - origin).Magnitude
+    local ray = Ray.new(origin, direction)
+    local part, _ = workspace:FindPartOnRay(ray, LocalPlayer.Character)
+
+    return part and part:IsDescendantOf(player.Character)
+end
+
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local head = player.Character:FindFirstChild("Head")
+            if head and hasLineOfSight(player) then
+                local distance = (head.Position - LocalPlayer.Character.Head.Position).magnitude
+                local sameTeam = player.Team == LocalPlayer.Team
+                local noTeams = not LocalPlayer.Team and not player.Team
+
+                if (noTeams or not sameTeam) and distance < shortestDistance then
+                    shortestDistance = distance
+                    closestPlayer = player
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+local function smoothLockCameraToPlayer(player)
+    if player and player.Character then
+        local head = player.Character:FindFirstChild("Head")
+        if head then
+            local targetCFrame = CFrame.new(Camera.CFrame.Position, head.Position)
+            local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+            tween = TweenService:Create(Camera, tweenInfo, {CFrame = targetCFrame})
+            tween:Play()
+        end
+    end
+end
+
+local function onRenderStep()
+    if holdingRightClick then
+        if currentTarget and (not currentTarget.Character or not currentTarget.Character:FindFirstChild("Head")) then
+            currentTarget = nil
+        end
+
+        if not currentTarget then
+            currentTarget = getClosestPlayer()
+        end
+
+        if currentTarget then
+            smoothLockCameraToPlayer(currentTarget)
+        end
+    end
+end
+
+local function startAimbot()
+    if not renderStepConnection then
+        renderStepConnection = RunService.RenderStepped:Connect(onRenderStep)
+    end
+
+    if not inputBeganConnection then
+        inputBeganConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+
+            if input.UserInputType == Enum.UserInputType.MouseButton2 then -- Right mouse button
+                holdingRightClick = true
+                currentTarget = getClosestPlayer()
+                if currentTarget then
+                    smoothLockCameraToPlayer(currentTarget)
+                end
+            end
+        end)
+    end
+
+    if not inputEndedConnection then
+        inputEndedConnection = UserInputService.InputEnded:Connect(function(input, gameProcessed)
+            if input.UserInputType == Enum.UserInputType.MouseButton2 then -- Right mouse button
+                holdingRightClick = false
+                currentTarget = nil
+                if tween then
+                    tween:Cancel()
+                end
+            end
+        end)
+    end
+end
+
+local function stopAimbot()
+    if renderStepConnection then
+        renderStepConnection:Disconnect()
+        renderStepConnection = nil
+    end
+    if inputBeganConnection then
+        inputBeganConnection:Disconnect()
+        inputBeganConnection = nil
+    end
+    if inputEndedConnection then
+        inputEndedConnection:Disconnect()
+        inputEndedConnection = nil
+    end
+    holdingRightClick = false
+    currentTarget = nil
+    if tween then
+        tween:Cancel()
+    end
+end
+
+local Toggle1 = Tab1:NewToggle("Aimbot", false, function(value)
+    _G.AimBot = value
+    if _G.AimBot then
+        startAimbot()
+    else
+        stopAimbot()
+    end
+end)
+
+_G.AimBot = false
+stopAimbot()
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local fovCircle = Drawing.new("Circle")
+fovCircle.Color = Color3.fromRGB(255, 255, 255)
+fovCircle.Thickness = 1
+fovCircle.NumSides = 50
+fovCircle.Radius = 100
+fovCircle.Filled = false
+fovCircle.Transparency = 1
+fovCircle.Visible = false
+
+local function createTracer()
+    local line = Drawing.new("Line")
+    line.Color = Color3.fromRGB(255, 255, 255)
+    line.Thickness = 1
+    line.Transparency = 1
+    line.Visible = false
+    return line
+end
+
+local tracers = {}
+
+local function highlightPlayer(player)
+    if player.Character and not player.Character:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "Highlight"
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0.5
+        highlight.Parent = player.Character
+    end
+end
+
+local function removeHighlight(player)
+    if player.Character and player.Character:FindFirstChild("Highlight") then
+        player.Character.Highlight:Destroy()
+    end
+end
+
+local function updateHighlights()
+    for _, player in ipairs(Players:GetPlayers()) do
+        highlightPlayer(player)
+    end
+end
+
+local function updateTracers()
+    for _, tracer in pairs(tracers) do
+        tracer.Visible = false
+    end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local tracer = tracers[player.Name] or createTracer()
+            tracers[player.Name] = tracer
+
+            local screenPosition, onScreen = Camera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+            if onScreen then
+                tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                tracer.To = Vector2.new(screenPosition.X, screenPosition.Y)
+                tracer.Visible = true
+            else
+                tracer.Visible = false
+            end
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        highlightPlayer(player)
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    removeHighlight(player)
+end)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    if player.Character then
+        highlightPlayer(player)
+    end
+    player.CharacterAdded:Connect(function()
+        highlightPlayer(player)
+    end)
+end
+
+local espToggle = false
+local fovToggle = false
+local tracersToggle = false
+local fovSize = 100
+
+local function updateVisuals()
+    if espToggle then
+        updateHighlights()
+    end
+
+    if fovToggle then
+        fovCircle.Visible = true
+        fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+        fovCircle.Radius = fovSize
+    else
+        fovCircle.Visible = false
+    end
+
+    if tracersToggle then
+        updateTracers()
+    else
+        for _, tracer in pairs(tracers) do
+            tracer.Visible = false
+        end
+    end
+end
+
+Toggle1 = Tab1:NewToggle("Esp", false, function(value)
+    espToggle = value
+    if not espToggle then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("Highlight") then
+                player.Character.Highlight:Destroy()
+            end
+        end
+    end
+end)
+
+Toggle2 = Tab1:NewToggle("FOV Circle", false, function(value)
+    fovToggle = value
+end)
+
+Toggle3 = Tab1:NewToggle("Tracers", false, function(value)
+    tracersToggle = value
+end)
+
+Slider1 = Tab1:NewSlider("FOV Size", "", true, "/", {min = 1, max = 200, default = 100}, function(value)
+    fovSize = value
+end)
+
+RunService.RenderStepped:Connect(updateVisuals)
+
+local flySpeed = 20
+
+local Slider1 = Tab3:NewSlider("Fly Speed", "", true, "/", {min = 1, max = 100, default = 20}, function(value)
+    flySpeed = value
+    print("Fly Speed:", value)
+end)
+
+local Toggle1 = Tab3:NewToggle("Fly", false, function(value)
+    if value then
+        _G.FLYING = true
+        local LP = game:service('Players').LocalPlayer
+        local T = LP.Character.UpperTorso
+        local CONTROL = {F = 0, B = 0, L = 0, R = 0}
+        local lCONTROL = {F = 0, B = 0, L = 0, R = 0}
+        local SPEED = flySpeed
+        local MOUSE = LP:GetMouse()
+        
+        local function FLY()
+            local BG = Instance.new('BodyGyro', T)
+            local BV = Instance.new('BodyVelocity', T)
+            BG.P = 9e4
+            BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+            BG.cframe = T.CFrame
+            BV.velocity = Vector3.new(0, 0.1, 0)
+            BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+
+            spawn(function()
+                repeat
+                    wait()
+                    LP.Character.Humanoid.PlatformStand = true
+                    if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 then
+                        SPEED = flySpeed
+                    elseif SPEED ~= 0 then
+                        SPEED = 0
+                    end
+                    if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 then
+                        BV.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                        lCONTROL = {F = CONTROL.F, B = CONTROL.B, L = CONTROL.L, R = CONTROL.R}
+                    elseif SPEED ~= 0 then
+                        BV.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                    else
+                        BV.velocity = Vector3.new(0, 0.1, 0)
+                    end
+                    BG.cframe = game.Workspace.CurrentCamera.CoordinateFrame
+                until not _G.FLYING
+                CONTROL = {F = 0, B = 0, L = 0, R = 0}
+                lCONTROL = {F = 0, B = 0, L = 0, R = 0}
+                SPEED = 0
+                BG:Destroy()
+                BV:Destroy()
+                LP.Character.Humanoid.PlatformStand = false
+            end)
+        end
+
+        MOUSE.KeyDown:Connect(function(KEY)
+            if KEY:lower() == 'w' then
+                CONTROL.F = 1
+            elseif KEY:lower() == 's' then
+                CONTROL.B = -1
+            elseif KEY:lower() == 'a' then
+                CONTROL.L = -1
+            elseif KEY:lower() == 'd' then
+                CONTROL.R = 1
+            end
+        end)
+        
+        MOUSE.KeyUp:Connect(function(KEY)
+            if KEY:lower() == 'w' then
+                CONTROL.F = 0
+            elseif KEY:lower() == 's' then
+                CONTROL.B = 0
+            elseif KEY:lower() == 'a' then
+                CONTROL.L = 0
+            elseif KEY:lower() == 'd' then
+                CONTROL.R = 0
+            end
+        end)
+
+        FLY()
+    else
+        _G.FLYING = false
+    end
+end):AddKeybind(Enum.KeyCode.RightControl)
+
+
+
+local FinishedLoading = Notif:Notify("Finished Loading Voided.gg", 4, "success")
