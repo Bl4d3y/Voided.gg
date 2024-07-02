@@ -173,6 +173,63 @@ end)
 _G.AimBot = false
 stopAimbot()
 
+local Toggle1 = Tab1:NewToggle("Hitbox Extender", false, function(value)
+    _G.Hitbox = value
+
+    if _G.Hitbox then
+        getgenv().GO = value
+
+        if getgenv().Connection then
+            getgenv().Connection:Disconnect()
+            getgenv().Connection = nil
+        end
+
+        if value then
+            getgenv().Connection = game:GetService("RunService").Stepped:Connect(function()
+                local players = game:GetService("Players")
+                local localPlayer = players.LocalPlayer
+                local partsToExtend = {"RightUpperLeg", "LeftUpperLeg", "HeadHB", "HumanoidRootPart"}
+
+                for _, player in pairs(players:GetPlayers()) do
+                    if player ~= localPlayer and player.Character then
+                        for _, partName in ipairs(partsToExtend) do
+                            local part = player.Character:FindFirstChild(partName)
+                            if part and part:IsA("BasePart") then
+                                part.CanCollide = false
+                                part.Transparency = 0.5
+                                part.Size = Vector3.new(5, 5, 5)
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    else
+        if getgenv().Connection then
+            getgenv().Connection:Disconnect()
+            getgenv().Connection = nil
+        end
+
+        local players = game:GetService("Players")
+        local localPlayer = players.LocalPlayer
+        local partsToExtend = {"RightUpperLeg", "LeftUpperLeg", "HeadHB", "HumanoidRootPart"}
+
+        for _, player in pairs(players:GetPlayers()) do
+            if player ~= localPlayer and player.Character then
+                for _, partName in ipairs(partsToExtend) do
+                    local part = player.Character:FindFirstChild(partName)
+                    if part and part:IsA("BasePart") then
+                        part.CanCollide = true
+                        part.Transparency = 0
+                        part.Size = part.Size
+                    end
+                end
+            end
+        end
+    end
+end)
+
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
@@ -397,6 +454,19 @@ local Toggle1 = Tab3:NewToggle("Fly", false, function(value)
         _G.FLYING = false
     end
 end):AddKeybind(Enum.KeyCode.RightControl)
+
+local Slider4 = Tab3:NewSlider("Walk Speed", "", true, "/", {min = 1, max = 100, default = 20}, function(value)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+    print("Walk Speed set to: " .. value)
+end)
+
+
+
+
+
+
+
+
 
 
 
