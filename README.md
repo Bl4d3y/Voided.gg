@@ -2,13 +2,6 @@
 
 # Welcome to Voided.gg
 
-## Table of Contents
-- [Introduction](#introducing-non-obfuscated-roblox-script-for-nyx)
-- [Features](#features)
-- [How to Use](#how-to-use)
-- [FAQ](#faq)
-- [Contact Us](#contact-us)
-
 ## Introducing: Non-Obfuscated Roblox Script for NYX
 
 Unlock the full potential of your Roblox experience with our non-obfuscated script for NYX. Say goodbye to complexity and hello to clarity!
