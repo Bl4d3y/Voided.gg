@@ -19,11 +19,10 @@ Unlock the full potential of your Roblox experience with our non-obfuscated scri
 - **Optimized Performance:** Enhances your gaming experience.
 
 ## How to Use
-1. **Download:** Get the script from our website.
-2. **Install:** Follow the installation guide.
-3. **Run:** Enjoy the improved Roblox experience.
+1. **Nyx** Get nyx or any other executor.
+2. **Executor:** Paste it in to your choosen executor.
+3. **Run:** Enjoy.
 
 ```lua
--- Example of Non-Obfuscated Script
-print("Welcome to Voided.gg!")
--- Add your script functionalities here
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Bl4d3y/Voided.gg/main/Voided.gg"))()
+
