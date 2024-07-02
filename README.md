@@ -1,4 +1,4 @@
-![Voided.gg Logo]([path_to_logo_image](https://media.discordapp.net/attachments/1150464592326172753/1227707888911515740/image_3.png?ex=66850352&is=6683b1d2&hm=59620287806c13438a1f78978d8e2be22367f012d73b2b98c35e5eea0d5a5ddb&=&format=webp&quality=lossless))
+![Voided.gg Logo](https://media.discordapp.net/attachments/1150464592326172753/1227707888911515740/image_3.png?ex=66850352&is=6683b1d2&hm=59620287806c13438a1f78978d8e2be22367f012d73b2b98c35e5eea0d5a5ddb&=&format=webp&quality=lossless)
 
 # Welcome to Voided.gg
 
